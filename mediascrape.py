@@ -31,13 +31,21 @@ def mediascrape(user, output):
         os.makedirs(dump_dir)
 
     for m in all_media:
+        photos_in_this_tweet = 0
         current_media = m.get('entities', {}).get('media', [])
 
         for idx, cm in enumerate(current_media):
             if cm.get('type') == 'photo':
                 download_count += 1
                 url = cm.get('media_url')
-                filename = '{0}_{1}.jpg'.format(user, m.get('id_str'))
+
+                # add '-2' etc to filenames if there are multiple photos in one tweet
+                photos_in_this_tweet += 1
+                add_photo_number = ""
+                if photos_in_this_tweet > 1:
+                    add_photo_number = "-" + str(photos_in_this_tweet)
+
+                filename = '{0}_{1}{2}.jpg'.format(user, m.get('id_str'), add_photo_number)
                 print('fetching image {0} - {1}'.format(download_count, url))
                 try:
                     urllib.request.urlretrieve(url, '{0}/{1}'.format(dump_dir, filename))
